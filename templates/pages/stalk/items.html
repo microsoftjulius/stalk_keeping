@@ -1,0 +1,51 @@
+{% extends 'main_skeleton.html' %}
+<!-- Page Heading -->
+{% block content %}
+    {% include('layouts/header.html')%}
+
+    <div class="container-xl px-4 mt-n10">
+        <div class="card mb-4">
+            <div class="card-header">{{active_page}}</div>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="container mt-3">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            <div class="card-body">
+                <table id="datatablesSimple">
+                    <thead>
+                    <tr>
+                        <th>Item Name</th>
+                        <th>Buying Price</th>
+                        <th>Selling Price</th>
+                        <th>Intended Profit</th>
+                        <th>Category</th>
+                        <th>Date Of Creation</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in items %}
+                        <tr>
+                            <td>{{ item.name }}</td>
+                            <td>{{ item.buying_price }}</td>
+                            <td>{{ item.selling_price }}</td>
+                            <td>{{ item.selling_price - item.buying_price }}</td>
+                            <td>{{ item.category.value }}</td>
+                            <td>{{ item.created_at }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#addItem">Add New Item</button>
+    </div>
+    {% include 'pages/stalk/modals/add_items.html' %}
+{% endblock %}

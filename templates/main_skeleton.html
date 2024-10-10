@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+{% include('layouts/styling.html') %}
+<body class="nav-fixed">
+{% include('layouts/nav_bar.html') %}
+<div id="layoutSidenav">
+  {% include('layouts/sidebar.html') %}
+  <div id="layoutSidenav_content">
+    <main>
+      <!-- Main page content-->
+      {% block scripting %} {% endblock %}
+      {% block content %} {% endblock %}
+    </main>
+  {% include('layouts/footer.html')%}
+  </div>
+</div>
+{% include('layouts/scripting.html')%}
+<script>
+  let inactivityTime = function () {
+    let time;
+    const logoutTime = 10 * 60 * 1000; // 10 minutes in milliseconds
+
+    // Reset timer when there is activity
+    window.onload = resetTimer;
+    document.onmousemove = resetTimer;
+    document.onkeypress = resetTimer;
+    document.ontouchstart = resetTimer; // For mobile devices
+
+    function logout() {
+      // Logout the user and clear session data
+      window.location.href = "/logout";
+    }
+
+    function resetTimer() {
+      clearTimeout(time);
+      time = setTimeout(logout, logoutTime);
+    }
+  };
+  inactivityTime();
+</script>
+</body>
+</html>

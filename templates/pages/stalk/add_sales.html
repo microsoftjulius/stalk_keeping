@@ -1,0 +1,66 @@
+{% extends 'main_skeleton.html' %}
+<!-- Page Heading -->
+{% block content %}
+    {% include('layouts/header.html')%}
+    <div style="height: 100px"></div>
+    <div class="container-xl px-4 mt-n10 card m-4">
+        <form action="/add" method="POST" class="needs-validation m-4" novalidate>
+            <div class="mb-3">
+                <label for="item_id" class="form-label">Drink Name:</label>
+                <select class="form-select" name="item_id" id="item_id" required>
+                    <option value="" disabled selected>Select a drink</option>
+                    {% for item in items %}
+                        <option value="{{ item.id }}">{{ item.name }} (Price: ${{ item.price }})</option>
+                    {% endfor %}
+                </select>
+                <div class="invalid-feedback">
+                    Please select a drink.
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="old_stalk" class="form-label">Old Stalk:</label>
+                <input type="number" class="form-control" id="old_stalk" name="old_stalk" required>
+                <div class="invalid-feedback">
+                    Please enter the old stalk quantity.
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="current_stalk" class="form-label">Current Stalk:</label>
+                <input type="number" class="form-control" id="current_stalk" name="current_stalk" required>
+                <div class="invalid-feedback">
+                    Please enter the current stalk quantity.
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="new_stalk" class="form-label">New Stalk:</label>
+                <input type="number" class="form-control" id="new_stalk" name="new_stalk" required>
+                <div class="invalid-feedback">
+                    Please enter the new stalk quantity.
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Add Record</button>
+        </form>
+    </div>
+
+    <!-- Bootstrap form validation script -->
+    <script>
+        (function () {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms).forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        })()
+    </script>
+
+{% endblock %}

@@ -1,0 +1,45 @@
+<div class="modal fade" id="addItem" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="addItemLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addItemLabel">Create New Item</h5>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url_for('items') }}" method="POST">
+                    {{ form.hidden_tag() }}
+
+                    <!-- Item Name -->
+                    <div class="form-group">
+                        {{ form.name.label(class='form-control-label') }}
+                        {{ form.name(class='form-control') }}
+                    </div>
+
+                    <!-- Buying Price -->
+                    <div class="form-group">
+                        {{ form.buying_price.label(class='form-control-label') }}
+                        {{ form.buying_price(class='form-control') }}
+                    </div>
+
+                    <!-- Selling Price -->
+                    <div class="form-group">
+                        {{ form.selling_price.label(class='form-control-label') }}
+                        {{ form.selling_price(class='form-control') }}
+                    </div>
+
+                    <!-- Category -->
+                    <div class="form-group">
+                        {{ form.category.label(class='form-control-label') }}
+                        {{ form.category(class='form-control') }}
+                    </div>
+
+                    <!-- Modal Footer -->
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Close</button>
+                        <button class="btn btn-primary" type="submit">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

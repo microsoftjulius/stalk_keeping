@@ -1,0 +1,146 @@
+<!-- Include Required Libraries -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title mx-auto" id="exampleModalLabel">Start your journey to Uganda</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true" style="color: black">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="userDetailsForm" class="m-4" action="{{url_for('check_eligibility')}}" method="post">
+          <div class="form-group">
+            <input type="text" class="form-control" name="name" id="name" placeholder="Enter your name" required>
+          </div>
+          <div class="form-group">
+            <input type="email" class="form-control" name="email" id="email" placeholder="Enter your email" required>
+          </div>
+          <div class="form-group">
+            <input type="tel" class="form-control phone-entry" name="phone" id="phone" placeholder="Enter your phone number" required>
+            <!-- Visible input to display country code -->
+            <input type="hidden" name="country_code" class="form-control mt-2" id="visibleCountryCode" placeholder="Country Code" readonly>
+          </div>
+          <!-- Hidden input to store the country dialing code -->
+          <input type="hidden" id="countryCode" name="country_code">
+
+          <!-- Error message for invalid phone number -->
+          <div id="phone-error" style="color: red; display: none;">Invalid phone number. Please enter a valid number.</div>
+
+          <!-- Google reCAPTCHA -->
+          <div class="g-recaptcha" data-sitekey="6LfvOhAqAAAAAFLES4WbopetafrjtOZdNVUt7_IY" data-callback="captchaVerified" data-expired-callback="captchaExpired"></div>
+
+          <div class="modal-footer d-flex justify-content-center">
+            <button type="submit" class="btn btn-primary" id="saveChanges" disabled>SUBMIT</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Button to trigger modal -->
+<style>
+  .modal-sm {
+    max-width: 350px;
+  }
+  .phone-entry{
+    width: 134%;
+  }
+  .modal-title{
+    text-transform: capitalize;
+  }
+
+  /* iPhone SE (1st and 2nd generation) */
+  @media only screen and (min-width: 320px) and (max-width: 375px) and (orientation: portrait) {
+    .phone-entry {
+      width: 81.3vw; /* Adjust this value as needed */
+    }
+  }
+
+  /* iPhone 12 Pro */
+  @media only screen and (min-width: 376px) and (max-width: 400px) and (orientation: portrait) {
+    .phone-entry {
+      width: 77.5vw; /* Adjust this value as needed */
+    }
+  }
+
+  /* iPhone 14 Pro Max - Portrait */
+  @media only screen and (min-width: 429px) and (max-width: 433px) and (orientation: portrait) {
+    .phone-entry {
+      width: 70.5vw; /* Adjust this value as needed */
+    }
+  }
+
+  /* Samsung Galaxy S20 Ultra - Portrait */
+  @media only screen and (min-width: 411px) and (max-width: 415px) and (orientation: portrait) {
+    .phone-entry {
+      width: 73.5vw; /* Adjust this value as needed */
+    }
+  }
+  /* Samsung Galaxy S8 - Portrait */
+  @media only screen and (min-width: 359px) and (max-width: 363px) and (orientation: portrait) {
+    .phone-entry {
+      width: 83.5vw; /* Adjust this value as needed */
+    }
+  }
+</style>
+
+<!-- Script to initialize intlTelInput and handle validation -->
+<script>
+  $(document).ready(function() {
+    const input = document.querySelector("#phone");
+    const visibleCountryCodeInput = document.querySelector("#visibleCountryCode");
+    const countryCodeInput = document.querySelector("#countryCode");
+    const phoneError = document.querySelector("#phone-error");
+
+    const iti = window.intlTelInput(input, {
+      initialCountry: "auto",
+      geoIpLookup: function(callback) {
+        $.get("https://ipinfo.io", function() {}, "jsonp").always(function(resp) {
+          const countryCode = (resp && resp.country) ? resp.country : "US";
+          callback(countryCode);
+        });
+      },
+      utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js" // Load utility library for formatting
+    });
+
+    // Listen for changes and update the visible and hidden inputs with the selected country code
+    input.addEventListener("countrychange", function() {
+      const dialCode = iti.getSelectedCountryData().dialCode;
+      visibleCountryCodeInput.value = `+${dialCode}`; // Update visible input with country code
+      countryCodeInput.value = dialCode; // Update hidden input with country code for form submission
+    });
+
+    // Validate phone number on form submission
+    $("#userDetailsForm").on("submit", function(e) {
+      if (!iti.isValidNumber()) {
+        e.preventDefault(); // Prevent form submission
+        phoneError.style.display = "block"; // Show error message
+      } else {
+        phoneError.style.display = "none"; // Hide error message
+      }
+    });
+  });
+
+  // Enable button once captcha is verified
+  function captchaVerified() {
+    document.getElementById("saveChanges").disabled = false;
+  }
+
+  // Disable button again if captcha expires
+  function captchaExpired() {
+    document.getElementById("saveChanges").disabled = true;
+  }
+
+  // Prevent multiple submissions
+  $("#userDetailsForm").on("submit", function() {
+    $("#saveChanges").prop("disabled", true);
+  });
+</script>
