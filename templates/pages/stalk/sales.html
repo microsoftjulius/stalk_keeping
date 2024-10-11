@@ -1,53 +1,61 @@
 {% extends 'main_skeleton.html' %}
 <!-- Page Heading -->
 {% block content %}
-{% include('layouts/header.html')%}
+    {% include('layouts/header.html')%}
 
-<div class="container-xl px-4 mt-n10">
-    <div class="card mb-4">
-        <div class="card-header">{{active_page}}</div>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        <div class="container mt-3">
-            {% for category, message in messages %}
-            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            {% endfor %}
-        </div>
-        {% endif %}
-        {% endwith %}
-        <div class="card-body">
-            <table id="datatablesSimple">
-                <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Drink</th>
-                    <th>Old Stalk</th>
-                    <th>Current Stalk</th>
-                    <th>New Stalk</th>
-                    <th>Total In Stalk</th>
-                    <th>Sales</th>
-                    <th>Cash</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for record in records %}
+    <div class="container-xl px-4 mt-n10">
+        <div class="card mb-4">
+            <div class="card-header">{{ active_page }}</div>
+
+            <div class="card-body">
+                <!-- Date Filter Form -->
+                <form method="GET" action="{{ url_for('sales') }}">
+                    <div class="row g-3 align-items-center">
+                        <div class="col-auto">
+                            <label for="from_date" class="col-form-label">From:</label>
+                            <input type="date" id="from_date" name="from_date" class="form-control" value="{{ request.args.get('from_date') }}">
+                        </div>
+                        <div class="col-auto">
+                            <label for="to_date" class="col-form-label">To:</label>
+                            <input type="date" id="to_date" name="to_date" class="form-control" value="{{ request.args.get('to_date') }}">
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-primary">Filter</button>
+                        </div>
+                    </div>
+                </form>
+                <hr>
+
+                <table id="datatablesSimple">
+                    <thead>
                     <tr>
-                        <td>{{ record.date }}</td>
-                        <td>{{ record.item.name }}</td>
-                        <td>{{ record.old_stalk }}</td>
-                        <td>{{ record.current_stalk }}</td>
-                        <td>{{ record.new_stalk }}</td>
-                        <td>{{ record.new_stalk + record.current_stalk }}</td>
-                        <td>{{ record.sales }}</td>
-                        <td>{{ record.cash }}</td>
+                        <th>Date</th>
+                        <th>Drink</th>
+                        <th>Old Stalk</th>
+                        <th>Current Stalk</th>
+                        <th>New Stalk</th>
+                        <th>Total In Stalk</th>
+                        <th>Sales</th>
+                        <th>Cash</th>
                     </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                    {% for record in records %}
+                        <tr>
+                            <td>{{ record.date }}</td>
+                            <td>{{ record.item.name }}</td>
+                            <td>{{ record.old_stalk }}</td>
+                            <td>{{ record.current_stalk }}</td>
+                            <td>{{ record.new_stalk }}</td>
+                            <td>{{ record.new_stalk + record.current_stalk }}</td>
+                            <td>{{ record.sales }}</td>
+                            <td>{{ record.cash }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-</div>
+
 {% endblock %}

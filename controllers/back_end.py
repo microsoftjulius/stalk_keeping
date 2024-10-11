@@ -26,8 +26,28 @@ def sales():
     # Get the current date
     today = date.today()
 
-    # Filter records where the date is today
-    records = StockRecord.query.filter(StockRecord.date == today).order_by(StockRecord.date.desc()).all()
+    # Get the 'from' and 'to' date from the query parameters if they exist
+    from_date = request.args.get('from_date', default=None)
+    to_date = request.args.get('to_date', default=None)
+
+    # Initialize the query
+    query = StockRecord.query
+
+    if from_date and to_date:
+        # Parse the dates and filter records within the date range
+        from_date_obj = datetime.strptime(from_date, '%Y-%m-%d').date()
+        to_date_obj = datetime.strptime(to_date, '%Y-%m-%d').date()
+        query = query.filter(StockRecord.date.between(from_date_obj, to_date_obj))
+    elif from_date:
+        # Parse the single 'from' date and filter records for that day
+        from_date_obj = datetime.strptime(from_date, '%Y-%m-%d').date()
+        query = query.filter(StockRecord.date == from_date_obj)
+    else:
+        # Default to showing today's records
+        query = query.filter(StockRecord.date == today)
+
+    # Order by the date descending
+    records = query.order_by(StockRecord.date.desc()).all()
 
     # Retrieve all available items for selection
     items = Item.query.all()
@@ -50,18 +70,19 @@ def add_stock():
     sales = int(old_stalk) - int(current_stalk)
     cash = sales * item.selling_price
 
-    new_record = StockRecord(
-        date=date,
-        item_id=item_id,
-        old_stalk=old_stalk,
-        current_stalk=current_stalk,
-        new_stalk=new_stalk,
-        sales=sales,
-        cash=cash
-    )
+    if request.method == 'POST':
+        new_record = StockRecord(
+            date=date,
+            item_id=item_id,
+            old_stalk=old_stalk,
+            current_stalk=current_stalk,
+            new_stalk=new_stalk,
+            sales=sales,
+            cash=cash
+        )
 
-    db.session.add(new_record)
-    db.session.commit()
+        db.session.add(new_record)
+        db.session.commit()
 
     return redirect(url_for('new_stalk_page'))
 
@@ -91,6 +112,21 @@ def add_new_sale():
 def new_stalk_page():
     drinks = get_items()
     return render_template('pages/stalk/add_sales.html', active_page='Add Sales', drinks=drinks)
+
+
+@app.route('/get_old_stalk/<drink_id>', methods=['GET'])
+def get_old_stalk(drink_id):
+    # Fetch the record for the drink_id from your database
+    # Assuming you have a model called Stock that tracks this information
+    stock = StockRecord.query.filter_by(item_id=drink_id).order_by(StockRecord.date.desc()).first()
+
+    if stock:
+        # Calculate old stalk as per your logic
+        old_stalk = stock.new_stalk + stock.current_stalk
+    else:
+        old_stalk = 0  # Default value if no previous record exists
+
+    return jsonify({'old_stalk': old_stalk})
 
 
 @app.route('/api/register', methods=['POST'])

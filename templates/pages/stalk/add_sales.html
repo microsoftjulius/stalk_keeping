@@ -20,7 +20,7 @@
 
             <div class="mb-3">
                 <label for="old_stalk" class="form-label">Old Stalk:</label>
-                <input type="number" class="form-control" id="old_stalk" name="old_stalk" required>
+                <input type="number" class="form-control" id="old_stalk" name="old_stalk" readonly>
                 <div class="invalid-feedback">
                     Please enter the old stalk quantity.
                 </div>
@@ -46,21 +46,35 @@
         </form>
     </div>
 
-    <!-- Bootstrap form validation script -->
+    <!-- JavaScript to handle the old stalk autofill -->
     <script>
+        document.getElementById('item_id').addEventListener('change', function() {
+            const itemId = this.value;
+            if (itemId) {
+                fetch(`/get_old_stalk/${itemId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('old_stalk').value = data.old_stalk;
+                    })
+                    .catch(error => console.error('Error fetching old stalk:', error));
+            }
+        });
+
+        // Bootstrap form validation script
         (function () {
-            'use strict'
-            var forms = document.querySelectorAll('.needs-validation')
+            'use strict';
+            var forms = document.querySelectorAll('.needs-validation');
             Array.prototype.slice.call(forms).forEach(function (form) {
                 form.addEventListener('submit', function (event) {
                     if (!form.checkValidity()) {
-                        event.preventDefault()
-                        event.stopPropagation()
+                        event.preventDefault();
+                        event.stopPropagation();
                     }
-                    form.classList.add('was-validated')
-                }, false)
-            })
-        })()
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        })();
     </script>
+
 
 {% endblock %}
