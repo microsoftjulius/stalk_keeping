@@ -9,4 +9,4 @@ def create_item(item_name, buying_price, selling_price, category):
 
 
 def get_items():
-    return Item.query.all()
+    return Item.query.order_by(Item.created_at.desc()).all()

@@ -8,10 +8,10 @@
             <!-- Billing card 1-->
             <div class="card h-100 border-start-lg border-start-primary">
                 <div class="card-body">
-                    <div class="small text-muted">Product Types Count</div>
+                    <div class="small text-muted">Bar Deposits This Month</div>
                     <div class="h3"></div>
                     <a class="text-arrow-icon small" href="">
-                        20
+                        {{ '{:,.0f}/='.format(statistics.this_month_bar_deposits) }}
                     </a>
                 </div>
             </div>
@@ -20,10 +20,22 @@
             <!-- Billing card 1-->
             <div class="card h-100 border-start-lg border-start-info">
                 <div class="card-body">
-                    <div class="small text-muted">Total Item Count</div>
+                    <div class="small text-muted">Chips Deposits This Month</div>
                     <div class="h3"></div>
                     <a class="text-arrow-icon small" href="">
-                        300
+                        {{ '{:,.0f}/='.format(statistics.this_month_chips_deposits) }}
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 mb-4">
+            <!-- Billing card 1-->
+            <div class="card h-100 border-start-lg border-start-success">
+                <div class="card-body">
+                    <div class="small text-muted">Total Deposits</div>
+                    <div class="h3"></div>
+                    <a class="text-arrow-icon small" href="">
+                        {{ '{:,.0f}/='.format(statistics.this_month_deposits) }}
                     </a>
                 </div>
             </div>
@@ -35,7 +47,7 @@
                     <div class="small text-muted">Highest Sale Made</div>
                     <div class="h3"></div>
                     <a class="text-arrow-icon small" href="">
-                        430000
+                        {{ '{:,.0f}/='.format(statistics.highest_sale_made) }}
                     </a>
                 </div>
             </div>
@@ -44,10 +56,22 @@
             <!-- Billing card 1-->
             <div class="card h-100 border-start-lg border-start-purple">
                 <div class="card-body">
-                    <div class="small text-muted">Highest Selling Day</div>
+                    <div class="small text-muted">Highest Sale Day</div>
                     <div class="h3"></div>
                     <a class="text-arrow-icon small" href="">
-                        Wednesday
+                        {{ statistics.highest_sale_day }}
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 mb-4">
+            <!-- Billing card 1-->
+            <div class="card h-100 border-start-lg border-start-purple">
+                <div class="card-body">
+                    <div class="small text-muted">Lowest Sale Day</div>
+                    <div class="h3"></div>
+                    <a class="text-arrow-icon small" href="">
+                        {{ statistics.lowest_sale_day }}
                     </a>
                 </div>
             </div>

@@ -27,6 +27,7 @@
                     <th>Old Stalk</th>
                     <th>Current Stalk</th>
                     <th>New Stalk</th>
+                    <th>Total In Stalk</th>
                     <th>Sales</th>
                     <th>Cash</th>
                 </tr>
@@ -39,6 +40,7 @@
                         <td>{{ record.old_stalk }}</td>
                         <td>{{ record.current_stalk }}</td>
                         <td>{{ record.new_stalk }}</td>
+                        <td>{{ record.new_stalk + record.current_stalk }}</td>
                         <td>{{ record.sales }}</td>
                         <td>{{ record.cash }}</td>
                     </tr>
@@ -47,6 +49,5 @@
             </table>
         </div>
     </div>
-    <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#createAddon">Add New Addon</button>
 </div>
 {% endblock %}

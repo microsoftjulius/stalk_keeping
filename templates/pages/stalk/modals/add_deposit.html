@@ -1,0 +1,39 @@
+<div class="modal fade" id="addDeposit" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="addDeposit" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addItemLabel">Create New Item</h5>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url_for('mobile_deposits') }}" method="POST">
+                    {{ form.hidden_tag() }}
+
+                    <!-- Item Name -->
+                    <div class="form-group">
+                        {{ form.amount.label(class='form-control-label') }}
+                        {{ form.amount(class='form-control') }}
+                    </div>
+
+                    <!-- Buying Price -->
+                    <div class="form-group">
+                        {{ form.date.label(class='form-control-label') }}
+                        {{ form.date(class='form-control') }}
+                    </div>
+
+                    <!-- Category -->
+                    <div class="form-group">
+                        {{ form.deposit_from.label(class='form-control-label') }}
+                        {{ form.deposit_from(class='form-control') }}
+                    </div>
+
+                    <!-- Modal Footer -->
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Close</button>
+                        <button class="btn btn-primary" type="submit">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

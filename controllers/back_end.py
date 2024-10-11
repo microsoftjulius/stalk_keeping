@@ -1,13 +1,18 @@
-from datetime import datetime
+from datetime import datetime, date
 
 from flask import render_template, request, redirect, url_for, jsonify, flash
-from flask_login import current_user, logout_user, login_user, login_required
+from flask_login import login_required
+from sqlalchemy import extract
 from app import app, db, bcrypt
 from forms.authentication import LoginForm
+from forms.deposits import DepositForm
 from forms.items import ItemForm
+from models.deposits import Deposit
 from models.stalk import StockRecord, Item
 from models.user import User
+from serializers.deposits import create_deposit, get_deposits
 from serializers.items import create_item, get_items
+from sqlalchemy import func
 
 
 @app.route('/')
@@ -18,12 +23,19 @@ def index():
 
 @app.route('/sales')
 def sales():
-    records = StockRecord.query.order_by(StockRecord.date.desc()).all()
-    items = Item.query.all()  # Retrieve all available items for selection
+    # Get the current date
+    today = date.today()
+
+    # Filter records where the date is today
+    records = StockRecord.query.filter(StockRecord.date == today).order_by(StockRecord.date.desc()).all()
+
+    # Retrieve all available items for selection
+    items = Item.query.all()
+
     return render_template('pages/stalk/sales.html', records=records, items=items, active_page='Sales')
 
 
-@app.route('/add', methods=['POST'])
+@app.route('/add-stock', methods=['POST'])
 def add_stock():
     date = datetime.utcnow().date()
     item_id = request.form['item_id']
@@ -36,7 +48,7 @@ def add_stock():
 
     # Calculate sales and cash using the item's price
     sales = int(old_stalk) - int(current_stalk)
-    cash = sales * item.price
+    cash = sales * item.selling_price
 
     new_record = StockRecord(
         date=date,
@@ -51,7 +63,7 @@ def add_stock():
     db.session.add(new_record)
     db.session.commit()
 
-    return redirect(url_for('index'))
+    return redirect(url_for('new_stalk_page'))
 
 
 # Carry forward stalk from previous day
@@ -77,7 +89,8 @@ def add_new_sale():
 
 @app.route('/new_stalk_page')
 def new_stalk_page():
-    return render_template('pages/stalk/add_sales.html', active_page='Add Sales')
+    drinks = get_items()
+    return render_template('pages/stalk/add_sales.html', active_page='Add Sales', drinks=drinks)
 
 
 @app.route('/api/register', methods=['POST'])
@@ -117,9 +130,106 @@ def register():
 @app.route('/dashboard')
 @login_required
 def dashboard():
+    # Get the current month and year
+    current_month = datetime.now().month
+    current_year = datetime.now().year
     dashboard_page = 'pages/dashboard.html'
+    this_month_deposits = db.session.query(func.sum(Deposit.amount)).filter(
+        extract('month', Deposit.date_of_deposit) == current_month,
+        extract('year', Deposit.date_of_deposit) == current_year
+    ).scalar()
+    this_month_bar_deposits = db.session.query(func.sum(Deposit.amount)).filter(
+        extract('month', Deposit.date_of_deposit) == current_month,
+        extract('year', Deposit.date_of_deposit) == current_year,
+        Deposit.deposit_from == 'bar'
+    ).scalar()
+    this_month_chips_deposits = db.session.query(func.sum(Deposit.amount)).filter(
+        extract('month', Deposit.date_of_deposit) == current_month,
+        extract('year', Deposit.date_of_deposit) == current_year,
+        Deposit.deposit_from == 'chips'
+    ).scalar()
+    this_month_highest_sale = db.session.query(func.max(Deposit.amount)).filter(
+        extract('month', Deposit.date_of_deposit) == current_month,
+        extract('year', Deposit.date_of_deposit) == current_year,
+        Deposit.deposit_from == 'bar'
+    ).scalar()
 
-    return render_template(dashboard_page, title='Dashboard', active_page='Dashboard')
+    # Highest Selling day
+    max_amount_subquery = db.session.query(func.max(Deposit.amount)).filter(
+        extract('month', Deposit.date_of_deposit) == current_month,
+        extract('year', Deposit.date_of_deposit) == current_year,
+        Deposit.deposit_from == 'bar'
+    ).scalar_subquery()
+
+    # Query to get the day of the week for the date_of_deposit of the maximum amount
+    this_month_highest_selling_day_of_week = db.session.query(
+        extract('dow', Deposit.date_of_deposit)  # Extract the day of the week (0=Sunday, 6=Saturday)
+    ).filter(
+        Deposit.amount == max_amount_subquery,
+        extract('month', Deposit.date_of_deposit) == current_month,
+        extract('year', Deposit.date_of_deposit) == current_year,
+        Deposit.deposit_from == 'bar'
+    ).first()
+
+    # Convert the result to a more human-readable format (if needed)
+    if this_month_highest_selling_day_of_week:
+        day_of_week_number = this_month_highest_selling_day_of_week[0]
+        day_of_week_mapping = {
+            0: 'Sunday',
+            1: 'Monday',
+            2: 'Tuesday',
+            3: 'Wednesday',
+            4: 'Thursday',
+            5: 'Friday',
+            6: 'Saturday'
+        }
+        day_of_week_name = day_of_week_mapping.get(day_of_week_number)
+    else:
+        day_of_week_name = None
+
+    # Lowest Sales day
+    min_amount_subquery = db.session.query(func.min(Deposit.amount)).filter(
+        extract('month', Deposit.date_of_deposit) == current_month,
+        extract('year', Deposit.date_of_deposit) == current_year,
+        Deposit.deposit_from == 'bar'
+    ).scalar_subquery()
+
+    # Query to get the day of the week for the date_of_deposit of the minimum amount
+    this_month_lowest_selling_day_of_week = db.session.query(
+        extract('dow', Deposit.date_of_deposit)  # Extract the day of the week (0=Sunday, 6=Saturday)
+    ).filter(
+        Deposit.amount == min_amount_subquery,
+        extract('month', Deposit.date_of_deposit) == current_month,
+        extract('year', Deposit.date_of_deposit) == current_year,
+        Deposit.deposit_from == 'bar'
+    ).first()
+
+    # Convert the result to a more human-readable format (if needed)
+    if this_month_lowest_selling_day_of_week:
+        day_of_week_number = this_month_lowest_selling_day_of_week[0]
+
+        day_of_week_mapping = {
+            0: 'Sunday',
+            1: 'Monday',
+            2: 'Tuesday',
+            3: 'Wednesday',
+            4: 'Thursday',
+            5: 'Friday',
+            6: 'Saturday'
+        }
+        low_day_of_week_name = day_of_week_mapping.get(day_of_week_number)
+    else:
+        low_day_of_week_name = None
+
+    stats = {
+        'this_month_deposits': this_month_deposits,
+        'this_month_bar_deposits': this_month_bar_deposits,
+        'this_month_chips_deposits': this_month_chips_deposits,
+        'highest_sale_made': this_month_highest_sale,
+        'highest_sale_day': day_of_week_name,
+        'lowest_sale_day': low_day_of_week_name,
+    }
+    return render_template(dashboard_page, title='Dashboard', active_page='Dashboard', statistics=stats)
 
 
 @app.route('/items', methods=['GET', 'POST'])
@@ -143,3 +253,15 @@ def items():
     # Retrieve and display all items on the page
     bar_items = get_items()
     return render_template(dashboard_page, title='Dashboard', active_page='Items', form=item_form, items=bar_items)
+
+
+@app.route('/mobile_deposits', methods=['GET', 'POST'])
+@login_required
+def mobile_deposits():
+    page = 'pages/deposits.html'
+    deposit_form = DepositForm()
+    if request.method == 'POST':
+        create_deposit(deposit_form.amount.data, deposit_form.date.data, deposit_form.deposit_from.data)
+        flash('Deposit made successfully.', 'success')
+    all_deposits = get_deposits()
+    return render_template(page, title='Deposits', active_page='Deposits', form=deposit_form, deposits=all_deposits)

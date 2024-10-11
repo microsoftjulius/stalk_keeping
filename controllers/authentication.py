@@ -25,7 +25,7 @@ def login():
         else:
             flash('Invalid username or password.', 'danger')
 
-    return render_template('pages/login.html', form=user_form)
+    return render_template('pages/login.html', form=user_form, title="Login", active_page="Login")
 
 
 @app.route('/protected')
@@ -40,7 +40,7 @@ def logout():
     session.clear()
     logout_user()
     flash('You have been logged out.', 'info')
-    return redirect(url_for('user_login'))
+    return redirect(url_for('login'))
 
 
 @app.route('/change-password', methods=['POST'])

@@ -40,8 +40,13 @@
           <div class="nav-link-icon"><i data-feather="plus"></i></div>
             Add Stalk
         </a>
+      <div class="sidenav-menu-heading">Mobile Deposits</div>
+      <a class="nav-link {% if active_page == 'Deposits' %}active{% endif %}" href="{{url_for('mobile_deposits')}}">
+          <div class="nav-link-icon"><i data-feather="download"></i></div>
+          Add Deposit
+      </a>
       </div>
-    </div>
+      </div>
     <!-- Sidenav Footer-->
     <div class="sidenav-footer">
       <div class="sidenav-footer-content">
