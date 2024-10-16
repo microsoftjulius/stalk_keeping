@@ -12,6 +12,7 @@ class DepositForm(FlaskForm):
     deposit_from = SelectField('Deposit From', choices=[
         (DepositFromEnum.chips.name, DepositFromEnum.chips.value),
         (DepositFromEnum.bar.name, DepositFromEnum.bar.value),
+        (DepositFromEnum.poolTable.name, DepositFromEnum.poolTable.value),
     ], validators=[DataRequired()])
 
     submit = SubmitField('Submit')

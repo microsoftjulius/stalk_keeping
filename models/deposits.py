@@ -11,6 +11,7 @@ import enum
 class DepositFromEnum(enum.Enum):
     chips = "Chips"
     bar = "Bar"
+    poolTable = "Pool Table"
 
 
 class Deposit(db.Model):

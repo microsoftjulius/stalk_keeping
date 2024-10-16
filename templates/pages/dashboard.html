@@ -30,6 +30,18 @@
         </div>
         <div class="col-lg-3 mb-4">
             <!-- Billing card 1-->
+            <div class="card h-100 border-start-lg border-start-purple">
+                <div class="card-body">
+                    <div class="small text-muted">This Month Pool Table Deposits</div>
+                    <div class="h3"></div>
+                    <a class="text-arrow-icon small" href="">
+                        {{ '{:,.0f}/='.format(statistics.this_month_pool_table_deposits) }}
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 mb-4">
+            <!-- Billing card 1-->
             <div class="card h-100 border-start-lg border-start-success">
                 <div class="card-body">
                     <div class="small text-muted">Total Deposits</div>
@@ -48,6 +60,18 @@
                     <div class="h3"></div>
                     <a class="text-arrow-icon small" href="">
                         {{ '{:,.0f}/='.format(statistics.highest_sale_made) }}
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 mb-4">
+            <!-- Billing card 1-->
+            <div class="card h-100 border-start-lg border-start-success">
+                <div class="card-body">
+                    <div class="small text-muted">Lowest Sale Made</div>
+                    <div class="h3"></div>
+                    <a class="text-arrow-icon small" href="">
+                        {{ '{:,.0f}/='.format(statistics.lowest_sale_made) }}
                     </a>
                 </div>
             </div>

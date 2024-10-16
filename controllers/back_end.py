@@ -179,12 +179,22 @@ def dashboard():
         extract('year', Deposit.date_of_deposit) == current_year,
         Deposit.deposit_from == 'bar'
     ).scalar()
+    this_month_pool_table_deposits = db.session.query(func.sum(Deposit.amount)).filter(
+        extract('month', Deposit.date_of_deposit) == current_month,
+        extract('year', Deposit.date_of_deposit) == current_year,
+        Deposit.deposit_from == 'poolTable'
+    ).scalar()
     this_month_chips_deposits = db.session.query(func.sum(Deposit.amount)).filter(
         extract('month', Deposit.date_of_deposit) == current_month,
         extract('year', Deposit.date_of_deposit) == current_year,
         Deposit.deposit_from == 'chips'
     ).scalar()
     this_month_highest_sale = db.session.query(func.max(Deposit.amount)).filter(
+        extract('month', Deposit.date_of_deposit) == current_month,
+        extract('year', Deposit.date_of_deposit) == current_year,
+        Deposit.deposit_from == 'bar'
+    ).scalar()
+    this_month_lowest_sale = db.session.query(func.min(Deposit.amount)).filter(
         extract('month', Deposit.date_of_deposit) == current_month,
         extract('year', Deposit.date_of_deposit) == current_year,
         Deposit.deposit_from == 'bar'
@@ -262,8 +272,10 @@ def dashboard():
         'this_month_bar_deposits': this_month_bar_deposits,
         'this_month_chips_deposits': this_month_chips_deposits,
         'highest_sale_made': this_month_highest_sale,
+        'lowest_sale_made': this_month_lowest_sale,
         'highest_sale_day': day_of_week_name,
         'lowest_sale_day': low_day_of_week_name,
+        'this_month_pool_table_deposits': this_month_pool_table_deposits,
     }
     return render_template(dashboard_page, title='Dashboard', active_page='Dashboard', statistics=stats)
 
